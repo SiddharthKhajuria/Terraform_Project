@@ -33,9 +33,9 @@ resource "local_file" "private_key" {
 }
 
 resource "aws_instance" "public_instance" {
-  ami           = "ami-0423fca164888b941"  # Ensure this is a valid RedHat AMI ID for your region
+  ami           = "ami-0423fca164888b941"
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.key_pair.key_name
+  key_name      = 
 
   user_data = <<-EOF
               #!/bin/bash
