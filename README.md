@@ -1,48 +1,64 @@
-# Terraform_Project
+# Terraform Project
 
-Simple Terraform project using local modules for VPC and Security Group.
+Reusable Terraform modules for provisioning AWS VPC, Security Group, and EC2 resources across multiple environments.
 
-## Current Structure
+## Repository Structure
 
 ```text
 Terraform_Project/
 ├── modules/
-│   ├── vpc/
+│   ├── ec2/
+│   │   └── main.tf
+│   ├── sg/
 │   │   ├── main.tf
 │   │   └── outputs.tf
-│   └── sg/
+│   └── vpc/
 │       ├── main.tf
 │       └── outputs.tf
 └── README.md
 ```
 
-## What This Does
+## Design Principles
 
-- `modules/vpc` creates a VPC.
-- `modules/sg` creates a Security Group.
-- VPC output gives `vpc_id`.
-- SG output gives `security_group_id`.
+- Modules are environment-agnostic and reusable for dev, qa, and prod.
+- Environment-specific values are passed from environment root configurations.
+- AWS-generated IDs are shared between modules through outputs.
+- No static infrastructure IDs are hardcoded in module logic.
 
-## Why Outputs Matter
+## Module Contracts
 
-AWS generates IDs when resources are created.
-`outputs.tf` exposes those IDs so other modules can use them.
+### VPC Module
 
-Flow:
+- Purpose: Creates VPC networking resources.
+- Key inputs: name, cidr, azs, public_subnets, private_subnets, enable_nat_gateway, enable_vpn_gateway, tags.
+- Key outputs: vpc_id, vpc_cidr_block, public_subnets, private_subnets.
 
-1. VPC module creates VPC.
-2. VPC module outputs `vpc_id`.
-3. SG module or environment code uses that `vpc_id`.
-4. SG module outputs `security_group_id`.
-5. EC2/ALB can use that SG ID.
+### Security Group Module
 
-## Variables and Secrets Best Practice
+- Purpose: Creates an HTTP-enabled security group in a target VPC.
+- Key inputs: name, description, vpc_id, ingress_cidr_blocks.
+- Key outputs: security_group_id.
 
-- Keep variable names in code.
-- Keep real values local (`terraform.tfvars.local`) or `TF_VAR_*` env vars.
-- Never commit real secrets to GitHub.
+### EC2 Module
 
-Suggested `.gitignore` entries:
+- Purpose: Creates an EC2 instance.
+- Key inputs: name, instance_type, subnet_id, tags.
+- Key outputs: Managed by upstream Terraform AWS EC2 module outputs as needed.
+
+## Dependency Flow
+
+1. VPC module provisions network resources.
+2. VPC outputs provide subnet and VPC IDs.
+3. Security Group module consumes VPC ID.
+4. EC2 module consumes subnet ID.
+
+## Security and Configuration Standards
+
+- Keep variable definitions in code and environment values in tfvars or environment variables.
+- Do not commit credentials, secrets, or local state files.
+- Use consistent tagging standards across environments.
+
+Suggested gitignore entries:
 
 ```gitignore
 *.tfvars
@@ -53,7 +69,9 @@ Suggested `.gitignore` entries:
 .terraform/
 ```
 
-## Commands (from env folder)
+## Terraform Workflow
+
+Run from the selected environment folder:
 
 ```bash
 terraform init
