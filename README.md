@@ -1,14 +1,31 @@
 # Terraform Project
 
-Reusable Terraform modules for provisioning AWS VPC, Security Group, and EC2 resources across multiple environments.
+Terraform-based AWS infrastructure project using reusable modules and environment-specific root configurations.
+
+## Project Overview
+
+This repository provisions:
+
+- Virtual Private Cloud (VPC) networking
+- HTTP-enabled Security Group
+- EC2 compute instance
 
 ## Repository Structure
 
 ```text
 Terraform_Project/
+├── env/
+│   └── qa/
+│       ├── main.tf
+│       ├── outputs.tf
+│       ├── provider.tf
+│       ├── variable.tf
+│       ├── versions.tf
+│       └── terraform.tfvars
 ├── modules/
 │   ├── ec2/
-│   │   └── main.tf
+│   │   ├── main.tf
+│   │   └── outputs.tf
 │   ├── sg/
 │   │   ├── main.tf
 │   │   └── outputs.tf
@@ -18,56 +35,30 @@ Terraform_Project/
 └── README.md
 ```
 
-## Design Principles
+## Module Summary
 
-- Modules are environment-agnostic and reusable for dev, qa, and prod.
-- Environment-specific values are passed from environment root configurations.
-- AWS-generated IDs are shared between modules through outputs.
-- No static infrastructure IDs are hardcoded in module logic.
+- `modules/vpc`: Provisions VPC, public/private subnets, and networking options.
+- `modules/sg`: Provisions an HTTP-enabled security group in a target VPC.
+- `modules/ec2`: Provisions an EC2 instance in a specified subnet.
 
-## Module Contracts
+## Environment Model
 
-### VPC Module
+Each environment under `env/` is a Terraform root module and typically includes:
 
-- Purpose: Creates VPC networking resources.
-- Key inputs: name, cidr, azs, public_subnets, private_subnets, enable_nat_gateway, enable_vpn_gateway, tags.
-- Key outputs: vpc_id, vpc_cidr_block, public_subnets, private_subnets.
+- `versions.tf` for Terraform/provider version constraints
+- `provider.tf` for cloud provider configuration
+- `variable.tf` for input variable declarations
+- `main.tf` for module composition
+- `outputs.tf` for environment outputs
+- `terraform.tfvars` for environment values
 
-### Security Group Module
+The current repository includes `env/qa`; additional environments can follow the same pattern.
 
-- Purpose: Creates an HTTP-enabled security group in a target VPC.
-- Key inputs: name, description, vpc_id, ingress_cidr_blocks.
-- Key outputs: security_group_id.
+## Prerequisites
 
-### EC2 Module
-
-- Purpose: Creates an EC2 instance.
-- Key inputs: name, instance_type, subnet_id, tags.
-- Key outputs: Managed by upstream Terraform AWS EC2 module outputs as needed.
-
-## Dependency Flow
-
-1. VPC module provisions network resources.
-2. VPC outputs provide subnet and VPC IDs.
-3. Security Group module consumes VPC ID.
-4. EC2 module consumes subnet ID.
-
-## Security and Configuration Standards
-
-- Keep variable definitions in code and environment values in tfvars or environment variables.
-- Do not commit credentials, secrets, or local state files.
-- Use consistent tagging standards across environments.
-
-Suggested gitignore entries:
-
-```gitignore
-*.tfvars
-*.tfvars.json
-*.auto.tfvars
-*.tfstate
-*.tfstate.*
-.terraform/
-```
+- Terraform `>= 1.5.0`
+- AWS CLI (v2 recommended)
+- Valid AWS credentials/profile configured locally
 
 ## Terraform Workflow
 
@@ -80,3 +71,17 @@ terraform validate
 terraform plan
 terraform apply
 ```
+
+## Security and Version Control
+
+- Do not commit secrets or credential material.
+- Keep state and local Terraform artifacts out of source control.
+- `*.tfvars`, `*.tfstate*`, `.terraform/`, and `.terraform.lock.hcl` are ignored by `.gitignore` in this repository.
+
+## Troubleshooting
+
+- **No Terraform configuration files**
+  - Run Terraform from an environment root folder (for example, `env/qa`) or use `-chdir`.
+
+- **InvalidClientTokenId / ExpiredToken**
+  - Refresh AWS credentials for the active profile, then rerun `terraform plan`.
