@@ -88,8 +88,16 @@ terraform apply
 For first-time backend setup:
 
 1. Run `terraform init && terraform apply` in `env/bootstrap`.
-2. Configure backend in `env/qa` (S3 bucket, key, region, DynamoDB table).
-3. Run `terraform init -migrate-state` in `env/qa`.
+2. Configure backend in `env/qa` with `backend.tf` and pass backend values at init time.
+3. Run in `env/qa`:
+
+```bash
+terraform init -migrate-state \
+  -backend-config="bucket=<state-bucket-name>" \
+  -backend-config="region=<aws-region>" \
+  -backend-config="dynamodb_table=<lock-table-name>" \
+  -backend-config="profile=<aws-profile>"
+```
 
 ## Security and Version Control
 
