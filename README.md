@@ -9,12 +9,20 @@ This repository provisions:
 - Virtual Private Cloud (VPC) networking
 - HTTP-enabled Security Group
 - EC2 compute instance
+- Remote Terraform backend foundation (S3 state bucket + DynamoDB lock table)
 
 ## Repository Structure
 
 ```text
 Terraform_Project/
 ├── env/
+│   ├── bootstrap/
+│   │   ├── main.tf
+│   │   ├── output.tf
+│   │   ├── provider.tf
+│   │   ├── variables.tf
+│   │   ├── versions.tf
+│   │   └── terraform.tfvars
 │   └── qa/
 │       ├── main.tf
 │       ├── outputs.tf
@@ -52,7 +60,12 @@ Each environment under `env/` is a Terraform root module and typically includes:
 - `outputs.tf` for environment outputs
 - `terraform.tfvars` for environment values
 
-The current repository includes `env/qa`; additional environments can follow the same pattern.
+The current repository includes:
+
+- `env/bootstrap`: Creates shared backend resources (S3 state bucket with versioning and DynamoDB lock table).
+- `env/qa`: Provisions workload infrastructure (VPC, SG, EC2) and consumes the remote backend.
+
+Additional environments (for example `env/prod`) can follow the same root-module pattern as `env/qa`.
 
 ## Prerequisites
 
@@ -71,6 +84,12 @@ terraform validate
 terraform plan
 terraform apply
 ```
+
+For first-time backend setup:
+
+1. Run `terraform init && terraform apply` in `env/bootstrap`.
+2. Configure backend in `env/qa` (S3 bucket, key, region, DynamoDB table).
+3. Run `terraform init -migrate-state` in `env/qa`.
 
 ## Security and Version Control
 
