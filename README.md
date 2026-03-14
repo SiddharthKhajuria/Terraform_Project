@@ -5,50 +5,70 @@ Terraform-based AWS infrastructure project using reusable modules and environmen
 ## Diagram
 
 ```mermaid
-flowchart LR
+flowchart TB
     U[Developer]
 
-    subgraph B[env/bootstrap]
-      B1[Terraform]
+    subgraph BACKEND[Bootstrap Backend env/bootstrap]
+      BTF[Terraform]
       S3[(S3 State Bucket)]
       DDB[(DynamoDB Lock Table)]
-      B1 --> S3
-      B1 --> DDB
+      BTF --> S3
+      BTF --> DDB
     end
 
-    subgraph Q[env/qa]
-      Q1[Terraform]
-      VPC[VPC Module]
-      SG[SG Module]
-      EC2M[EC2 Module\ncount = 4]
-      PUB1[Public Subnet 1]
-      I1[EC2 #1]
-      I2[EC2 #2]
-      I3[EC2 #3]
-      I4[EC2 #4]
-      Q1 --> VPC
-      Q1 --> SG
-      Q1 --> EC2M
-      VPC --> PUB1
-      EC2M --> I1
-      EC2M --> I2
-      EC2M --> I3
-      EC2M --> I4
-      PUB1 --> I1
-      PUB1 --> I2
-      PUB1 --> I3
-      PUB1 --> I4
-      SG --> I1
-      SG --> I2
-      SG --> I3
-      SG --> I4
+    subgraph QA[QA Infrastructure env/qa]
+      QTF[Terraform]
+
+      subgraph MOD[Module Layer]
+        VPCM[VPC Module]
+        SGM[SG Module]
+        ECPUBM[EC2 Public Module\ncount = 2]
+        ECPVTM[EC2 Private Module\ncount = 2]
+      end
+
+      subgraph NET[VPC Network]
+        PUBS[Public Subnet 1]
+        PVTS[Private Subnet 1]
+        SGRES[(qa-web-sg)]
+
+        subgraph PUBT[Public EC2 Tier]
+          PUB1[EC2 Public #1]
+          PUB2[EC2 Public #2]
+        end
+
+        subgraph PVTT[Private EC2 Tier]
+          PVT1[EC2 Private #1]
+          PVT2[EC2 Private #2]
+        end
+      end
+
+      QTF --> VPCM
+      QTF --> SGM
+      QTF --> ECPUBM
+      QTF --> ECPVTM
+
+      VPCM --> PUBS
+      VPCM --> PVTS
+      SGM --> SGRES
+
+      ECPUBM --> PUB1
+      ECPUBM --> PUB2
+      ECPVTM --> PVT1
+      ECPVTM --> PVT2
+
+      PUBS --> PUB1
+      PUBS --> PUB2
+      PVTS --> PVT1
+      PVTS --> PVT2
     end
 
-    U --> B1
-    U --> Q1
-    Q1 -. backend state .-> S3
-    Q1 -. state lock .-> DDB
+    U --> BTF
+    U --> QTF
+    QTF -. remote state .-> S3
+    QTF -. state lock .-> DDB
 ```
+
+Current QA EC2 distribution: 2 instances in public subnet(s) and 2 instances in private subnet(s).
 
 ## Project Overview
 
@@ -95,7 +115,7 @@ Terraform_Project/
 
 - `modules/vpc`: Provisions VPC, public/private subnets, and networking options.
 - `modules/sg`: Provisions an HTTP-enabled security group in a target VPC.
-- `modules/ec2`: Provisions an EC2 instance in a specified subnet.
+- `modules/ec2`: Provisions one or more EC2 instances in a specified subnet.
 
 ## Environment Model
 
@@ -113,7 +133,7 @@ The current repository includes:
 - `env/bootstrap`: Creates shared backend resources (S3 state bucket with versioning and DynamoDB lock table).
 - `env/qa`: Provisions workload infrastructure (VPC, SG, EC2) and consumes the remote backend.
 
-To scale EC2 in QA, update `ec2_instance_count` in `env/qa/terraform.tfvars`.
+To scale EC2 in QA, update `ec2_public_instance_count` and `ec2_private_instance_count` in `env/qa/terraform.tfvars`.
 
 Additional environments (for example `env/prod`) can follow the same root-module pattern as `env/qa`.
 

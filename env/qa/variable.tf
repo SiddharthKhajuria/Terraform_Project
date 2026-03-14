@@ -68,10 +68,16 @@ variable "ec2_name" {
   type        = string
 }
 
-variable "ec2_instance_count" {
-  description = "Number of EC2 instances to create in QA"
+variable "ec2_public_instance_count" {
+  description = "Number of EC2 instances to create in public subnet(s) in QA"
   type        = number
-  default     = 1
+  default     = 2
+}
+
+variable "ec2_private_instance_count" {
+  description = "Number of EC2 instances to create in private subnet(s) in QA"
+  type        = number
+  default     = 2
 }
 
 variable "instance_type" {

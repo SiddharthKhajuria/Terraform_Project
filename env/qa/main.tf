@@ -20,12 +20,22 @@ module "sg" {
   ingress_cidr_blocks = var.ingress_cidr_blocks
 }
 
-module "ec2" {
+module "ec2_public" {
   source = "../../modules/ec2"
 
-  name          = var.ec2_name
-  instance_count = var.ec2_instance_count
+  name          = "${var.ec2_name}-public"
+  instance_count = var.ec2_public_instance_count
   instance_type = var.instance_type
   subnet_id     = module.vpc.public_subnets[0]
+  tags          = var.tags
+}
+
+module "ec2_private" {
+  source = "../../modules/ec2"
+
+  name          = "${var.ec2_name}-private"
+  instance_count = var.ec2_private_instance_count
+  instance_type = var.instance_type
+  subnet_id     = module.vpc.private_subnets[0]
   tags          = var.tags
 }
