@@ -8,58 +8,48 @@ Terraform-based AWS infrastructure project using reusable modules and environmen
 flowchart TB
     U[Developer]
 
-    subgraph BACKEND[Bootstrap Backend env/bootstrap]
+    subgraph BACKEND[env/bootstrap]
       BTF[Terraform]
-      S3[(S3 State Bucket)]
-      DDB[(DynamoDB Lock Table)]
+      S3[(State Bucket)]
+      DDB[(Lock Table)]
       BTF --> S3
       BTF --> DDB
     end
 
-    subgraph QA[QA Infrastructure env/qa]
+    subgraph QA[env/qa]
       QTF[Terraform]
 
-      subgraph MOD[Module Layer]
-        VPCM[VPC Module]
-        SGM[SG Module]
-        ECPUBM[EC2 Public Module\ncount = 2]
-        ECPVTM[EC2 Private Module\ncount = 2]
+      subgraph MOD[Modules]
+        VPCM[VPC]
+        SGM[Security Group]
+        PUBM[EC2 Public\ncount=2]
+        PRVM[EC2 Private\ncount=2]
       end
 
-      subgraph NET[VPC Network]
-        PUBS[Public Subnet 1]
-        PVTS[Private Subnet 1]
-        SGRES[(qa-web-sg)]
-
-        subgraph PUBT[Public EC2 Tier]
-          PUB1[EC2 Public #1]
-          PUB2[EC2 Public #2]
-        end
-
-        subgraph PVTT[Private EC2 Tier]
-          PVT1[EC2 Private #1]
-          PVT2[EC2 Private #2]
-        end
+      subgraph NET[VPC]
+        PUBS[Public Subnet]
+        PVTS[Private Subnet]
+        SGID[(qa-web-sg)]
+        PUBE[Public EC2 x2]
+        PRVE[Private EC2 x2]
       end
 
       QTF --> VPCM
       QTF --> SGM
-      QTF --> ECPUBM
-      QTF --> ECPVTM
+      QTF --> PUBM
+      QTF --> PRVM
 
       VPCM --> PUBS
       VPCM --> PVTS
-      SGM --> SGRES
+      SGM --> SGID
 
-      ECPUBM --> PUB1
-      ECPUBM --> PUB2
-      ECPVTM --> PVT1
-      ECPVTM --> PVT2
+      PUBM --> PUBE
+      PRVM --> PRVE
 
-      PUBS --> PUB1
-      PUBS --> PUB2
-      PVTS --> PVT1
-      PVTS --> PVT2
+      PUBS --> PUBE
+      PVTS --> PRVE
+      SGID --> PUBE
+      SGID --> PRVE
     end
 
     U --> BTF
