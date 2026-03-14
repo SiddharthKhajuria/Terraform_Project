@@ -21,11 +21,6 @@ flowchart LR
       VPC[VPC Module]
       SG[SG Module]
       EC2[EC2 Module]
-      EC2[EC2 Module]
-      EC2[EC2 Module]
-      EC2[EC2 Module]
-      EC2[EC2 Module]
-      EC2[EC2 Module]
       Q1 --> VPC
       Q1 --> SG
       Q1 --> EC2
