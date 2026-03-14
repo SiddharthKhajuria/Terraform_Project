@@ -2,6 +2,37 @@
 
 Terraform-based AWS infrastructure project using reusable modules and environment-specific root configurations.
 
+## Diagram
+
+```mermaid
+flowchart LR
+    U[Developer]
+
+    subgraph B[env/bootstrap]
+      B1[Terraform]
+      S3[(S3 State Bucket)]
+      DDB[(DynamoDB Lock Table)]
+      B1 --> S3
+      B1 --> DDB
+    end
+
+    subgraph Q[env/qa]
+      Q1[Terraform]
+      VPC[VPC Module]
+      SG[SG Module]
+      EC2[EC2 Module]
+      Q1 --> VPC
+      Q1 --> SG
+      Q1 --> EC2
+      SG --> EC2
+    end
+
+    U --> B1
+    U --> Q1
+    Q1 -. backend state .-> S3
+    Q1 -. state lock .-> DDB
+```
+
 ## Project Overview
 
 This repository provisions:
