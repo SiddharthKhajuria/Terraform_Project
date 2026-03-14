@@ -24,6 +24,7 @@ module "ec2" {
   source = "../../modules/ec2"
 
   name          = var.ec2_name
+  instance_count = var.ec2_instance_count
   instance_type = var.instance_type
   subnet_id     = module.vpc.public_subnets[0]
   tags          = var.tags

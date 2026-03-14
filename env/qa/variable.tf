@@ -68,6 +68,12 @@ variable "ec2_name" {
   type        = string
 }
 
+variable "ec2_instance_count" {
+  description = "Number of EC2 instances to create in QA"
+  type        = number
+  default     = 1
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string

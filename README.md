@@ -39,7 +39,7 @@ This repository provisions:
 
 - Virtual Private Cloud (VPC) networking
 - HTTP-enabled Security Group
-- EC2 compute instance
+- EC2 compute instance(s)
 - Remote Terraform backend foundation (S3 state bucket + DynamoDB lock table)
 
 ## Repository Structure
@@ -95,6 +95,8 @@ The current repository includes:
 
 - `env/bootstrap`: Creates shared backend resources (S3 state bucket with versioning and DynamoDB lock table).
 - `env/qa`: Provisions workload infrastructure (VPC, SG, EC2) and consumes the remote backend.
+
+To scale EC2 in QA, update `ec2_instance_count` in `env/qa/terraform.tfvars`.
 
 Additional environments (for example `env/prod`) can follow the same root-module pattern as `env/qa`.
 

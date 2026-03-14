@@ -1,7 +1,8 @@
 module "ec2_instance" {
   source  = "terraform-aws-modules/ec2-instance/aws"
+  count   = var.instance_count
 
-  name = var.name
+  name = "${var.name}-${count.index + 1}"
 
   instance_type = var.instance_type
   monitoring    = true
@@ -13,6 +14,12 @@ module "ec2_instance" {
 variable "name" {
   description = "Name of the EC2 instance"
   type        = string
+}
+
+variable "instance_count" {
+  description = "Number of EC2 instances"
+  type        = number
+  default     = 1
 }
 
 variable "instance_type" {
