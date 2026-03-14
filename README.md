@@ -5,7 +5,7 @@ Terraform-based AWS infrastructure project using reusable modules and environmen
 ## Diagram
 
 ```mermaid
-flowchart TB
+flowchart LR
     U[Developer]
 
     subgraph BACKEND[env/bootstrap]
@@ -17,7 +17,7 @@ flowchart TB
     end
 
     subgraph QA[env/qa]
-      QTF[Terraform]
+      QTF[Terraform Root]
 
       subgraph MOD[Modules]
         VPCM[VPC]
@@ -26,7 +26,7 @@ flowchart TB
         PRVM[EC2 Private\ncount=2]
       end
 
-      subgraph NET[VPC]
+      subgraph NET[VPC Layout]
         PUBS[Public Subnet]
         PVTS[Private Subnet]
         SGID[(qa-web-sg)]
