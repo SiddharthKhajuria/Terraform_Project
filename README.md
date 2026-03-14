@@ -20,11 +20,28 @@ flowchart LR
       Q1[Terraform]
       VPC[VPC Module]
       SG[SG Module]
-      EC2[EC2 Module]
+      EC2M[EC2 Module\ncount = 4]
+      PUB1[Public Subnet 1]
+      I1[EC2 #1]
+      I2[EC2 #2]
+      I3[EC2 #3]
+      I4[EC2 #4]
       Q1 --> VPC
       Q1 --> SG
-      Q1 --> EC2
-      SG --> EC2
+      Q1 --> EC2M
+      VPC --> PUB1
+      EC2M --> I1
+      EC2M --> I2
+      EC2M --> I3
+      EC2M --> I4
+      PUB1 --> I1
+      PUB1 --> I2
+      PUB1 --> I3
+      PUB1 --> I4
+      SG --> I1
+      SG --> I2
+      SG --> I3
+      SG --> I4
     end
 
     U --> B1
