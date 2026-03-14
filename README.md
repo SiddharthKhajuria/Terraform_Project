@@ -4,6 +4,8 @@ Terraform-based AWS infrastructure project using reusable modules and environmen
 
 ## Diagram
 
+![Terraform Project Architecture](docs/architecture-aws-style.svg)
+
 ```mermaid
 flowchart LR
     U[Developer]
