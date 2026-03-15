@@ -4,9 +4,12 @@ module "ec2_instance" {
 
   name = "${var.name}-${count.index + 1}"
 
-  instance_type = var.instance_type
-  monitoring    = true
-  subnet_id     = var.subnet_id
+  instance_type               = var.instance_type
+  monitoring                  = true
+  subnet_id                   = var.subnet_id
+  key_name                    = var.key_name
+  vpc_security_group_ids      = var.vpc_security_group_ids
+  associate_public_ip_address = var.associate_public_ip_address
 
   tags = var.tags
 }
@@ -31,6 +34,24 @@ variable "instance_type" {
 variable "subnet_id" {
   description = "Subnet ID where EC2 instance will be launched"
   type        = string
+}
+
+variable "vpc_security_group_ids" {
+  description = "List of security group IDs to attach to EC2 instance"
+  type        = list(string)
+  default     = []
+}
+
+variable "associate_public_ip_address" {
+  description = "Whether to associate a public IP address with the instance"
+  type        = bool
+  default     = false
+}
+
+variable "key_name" {
+  description = "Name of the AWS key pair to attach to EC2 instance"
+  type        = string
+  default     = ""
 }
 
 variable "tags" {

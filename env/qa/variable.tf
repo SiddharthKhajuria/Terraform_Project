@@ -63,6 +63,11 @@ variable "ingress_cidr_blocks" {
   type        = list(string)
 }
 
+variable "ingress_ports" {
+  description = "Inbound TCP ports for EC2 security group"
+  type        = list(number)
+}
+
 variable "ec2_name" {
   description = "Name of EC2 instance"
   type        = string
@@ -82,5 +87,10 @@ variable "ec2_private_instance_count" {
 
 variable "instance_type" {
   description = "EC2 instance type"
+  type        = string
+}
+
+variable "key_name" {
+  description = "Name of the AWS key pair for EC2 SSH access"
   type        = string
 }

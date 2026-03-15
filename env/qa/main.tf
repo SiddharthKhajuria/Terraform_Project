@@ -18,16 +18,20 @@ module "sg" {
   description         = var.sg_description
   vpc_id              = module.vpc.vpc_id
   ingress_cidr_blocks = var.ingress_cidr_blocks
+  ingress_ports       = var.ingress_ports
 }
 
 module "ec2_public" {
   source = "../../modules/ec2"
 
-  name          = "${var.ec2_name}-public"
-  instance_count = var.ec2_public_instance_count
-  instance_type = var.instance_type
-  subnet_id     = module.vpc.public_subnets[0]
-  tags          = var.tags
+  name                        = "${var.ec2_name}-public"
+  instance_count              = var.ec2_public_instance_count
+  instance_type               = var.instance_type
+  subnet_id                   = module.vpc.public_subnets[0]
+  vpc_security_group_ids      = [module.sg.security_group_id]
+  associate_public_ip_address = true
+  key_name                    = var.key_name
+  tags                        = var.tags
 }
 
 module "ec2_private" {
@@ -37,5 +41,7 @@ module "ec2_private" {
   instance_count = var.ec2_private_instance_count
   instance_type = var.instance_type
   subnet_id     = module.vpc.private_subnets[0]
-  tags          = var.tags
+  vpc_security_group_ids = [module.sg.security_group_id]
+  key_name                    = var.key_name
+  tags                        = var.tags
 }
