@@ -1,7 +1,0 @@
----
-- name: Simple Ping Playbook
-  hosts: all
-  gather_facts: no
-  tasks:
-    - name: Ping all hosts
-      ansible.builtin.ping:
