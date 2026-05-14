@@ -12,5 +12,5 @@ override.tf.json
 *.tfvars.json
 *.pem
 env/qa/keys/
-crash.*.log
+
 
